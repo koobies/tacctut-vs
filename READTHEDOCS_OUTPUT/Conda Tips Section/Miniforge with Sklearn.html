@@ -19,6 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Miniforge with Cuda" href="Miniforge%20with%20Cuda.html" />
     <link rel="prev" title="Overview of conda @ TACC" href="Overview%20of%20conda%20%40%20TACC.html" /> 
 </head>
 
@@ -47,7 +48,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../Lets%20Get%20Advanced%20Section/Lets%20Get%20Advanced.html">Lets Get Advanced</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="Conda%20Tips%20and%20Tricks.html">Conda Tips and Tricks</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="Overview%20of%20conda%20%40%20TACC.html">Overview of conda &#64; TACC</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Miniforge with Sklearn</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Miniforge with Sklearn</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#part-1-interactively-create-container">Part 1: Interactively create container</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Miniforge%20with%20Cuda.html">Miniforge with Cuda</a></li>
 </ul>
 </li>
 </ul>
@@ -79,6 +84,121 @@
              
   <section id="miniforge-with-sklearn">
 <h1>Miniforge with Sklearn<a class="headerlink" href="#miniforge-with-sklearn" title="Link to this heading"></a></h1>
+<section id="part-1-interactively-create-container">
+<h2>Part 1: Interactively create container<a class="headerlink" href="#part-1-interactively-create-container" title="Link to this heading"></a></h2>
+<p>In this demo we will build a container with miniforge to run the following script:</p>
+<p><strong>Python script: randomforest.py</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_iris</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span>
+
+<span class="c1"># Load the iris dataset</span>
+<span class="n">iris</span> <span class="o">=</span> <span class="n">load_iris</span><span class="p">()</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">iris</span><span class="o">.</span><span class="n">data</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">iris</span><span class="o">.</span><span class="n">target</span>
+
+<span class="c1"># Split the data into training and testing sets</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Create a random forest classifier</span>
+<span class="n">rf</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Fit the model on the training data</span>
+<span class="n">rf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># Make predictions on the test data</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">rf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="c1"># Evaluate the model&#39;s accuracy</span>
+<span class="n">accuracy</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Accuracy:&quot;</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Miniforge offers a base container with mini-forge already installed.  This is a great base container for AI/ML environments that do not need GPUs.  To work through the dependencies for the script above let’s start an interactive session with this container.  Move to the directory where you have stored the script above and run the following command to launch docker.  Note that the -v $PWD:/code flag will mount the current working directory into the container so our script will be accessible.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>docker run -it -v $PWD:/code condaforge/miniforge3 /bin/bash
+</pre></div>
+</div>
+<p>If this is your first time using this the miniforge container, then Docker will download the image first. Once the image is downloaded and running the command prompt will change once you are inside the image.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">base</span><span class="p">)</span> <span class="n">root</span><span class="nd">@a236fcd347ef</span><span class="p">:</span><span class="o">/</span><span class="c1">#</span>
+</pre></div>
+</div>
+<p>Next, we can see what the default version of python is in the base container.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">base</span><span class="p">)</span> <span class="n">root</span><span class="nd">@a236fcd347ef</span><span class="p">:</span><span class="o">/</span><span class="c1"># python --version</span>
+<span class="n">Python</span> <span class="mf">3.12.7</span>
+</pre></div>
+</div>
+<p>Next we need to create the conda environment we plan to utilize for the script above.  We can see the dependencies of this script is pandas and scikit-learn and we would like to use an older version Python, say 3.11.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">base</span><span class="p">)</span> <span class="n">root</span><span class="o">@</span><span class="mi">5</span><span class="n">cd481291891</span><span class="p">:</span><span class="o">/</span><span class="c1"># conda create -n myenv python=3.11 scikit-learn pandas</span>
+</pre></div>
+</div>
+<p>To utilize this environment, we need to activate the environment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">base</span><span class="p">)</span> <span class="n">root</span><span class="o">@</span><span class="mi">5</span><span class="n">cd481291891</span><span class="p">:</span><span class="o">/</span><span class="c1"># conda activate myenv</span>
+</pre></div>
+</div>
+<p>When the environment is activated, we should see that base has been replaced with myenv:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">myenv</span><span class="p">)</span> <span class="n">root</span><span class="o">@</span><span class="mi">5</span><span class="n">cd481291891</span><span class="p">:</span><span class="o">/</span><span class="c1"># python --version</span>
+<span class="n">Python</span> <span class="mf">3.11.11</span>
+</pre></div>
+</div>
+<p>Finally, we can install and test our code</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">myenv</span><span class="p">)</span> <span class="n">root</span><span class="o">@</span><span class="mi">5</span><span class="n">cd481291891</span><span class="p">:</span><span class="o">/</span><span class="c1"># cd code/</span>
+<span class="p">(</span><span class="n">myenv</span><span class="p">)</span> <span class="n">root</span><span class="o">@</span><span class="mi">5</span><span class="n">cd481291891</span><span class="p">:</span><span class="o">/</span><span class="n">code</span><span class="c1"># chmod +rx randomforest.py</span>
+<span class="p">(</span><span class="n">myenv</span><span class="p">)</span> <span class="n">root</span><span class="o">@</span><span class="mi">5</span><span class="n">cd481291891</span><span class="p">:</span><span class="o">/</span><span class="n">code</span><span class="c1"># export PATH=/code:$PATH</span>
+<span class="p">(</span><span class="n">myenv</span><span class="p">)</span> <span class="n">root</span><span class="o">@</span><span class="mi">5</span><span class="n">cd481291891</span><span class="p">:</span><span class="o">/</span><span class="n">code</span><span class="c1"># cd</span>
+<span class="p">(</span><span class="n">myenv</span><span class="p">)</span> <span class="n">root</span><span class="o">@</span><span class="mi">5</span><span class="n">cd481291891</span><span class="p">:</span><span class="o">/</span><span class="n">code</span><span class="c1"># randomforest.py</span>
+<span class="n">Accuracy</span><span class="p">:</span> <span class="mf">1.0</span>
+</pre></div>
+</div>
+<p>We have successfully created a container and ran our example script.  Next, let’s build the same container with a Dockerfile</p>
+<p><strong>Part 2: Build container with a Dockerfile</strong></p>
+<p>Now that we have interactively created our docker container, let’s put all the steps into a docker file.  Note I modified the Docker file to create the environment from a yml file where the yml file contains:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">YML</span>
+
+<span class="n">name</span><span class="p">:</span> <span class="n">myenv</span>
+<span class="n">dependencies</span><span class="p">:</span>
+<span class="o">-</span> <span class="n">scikit</span><span class="o">-</span><span class="n">learn</span>
+<span class="o">-</span> <span class="n">pandas</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DOCKERFILE</span>
+
+<span class="n">FROM</span> <span class="n">condaforge</span><span class="o">/</span><span class="n">miniforge3</span>
+
+<span class="c1"># from yml file</span>
+<span class="n">COPY</span> <span class="n">environment</span><span class="o">.</span><span class="n">yml</span> <span class="o">.</span>
+<span class="n">RUN</span> <span class="n">conda</span> <span class="n">env</span> <span class="n">create</span> <span class="o">-</span><span class="n">f</span> <span class="n">environment</span><span class="o">.</span><span class="n">yml</span>
+
+<span class="c1"># This line will change the shell launched when opening the container such that</span>
+<span class="c1"># the environment created above is activated</span>
+<span class="n">RUN</span> <span class="n">echo</span> <span class="s2">&quot;source activate myenv&quot;</span> <span class="o">&gt;</span> <span class="o">~/.</span><span class="n">bashrc</span>
+
+<span class="c1"># Copy files Files you want to run,  make executable, and add code to $PATH</span>
+<span class="n">COPY</span> <span class="n">randomforest</span><span class="o">.</span><span class="n">py</span> <span class="o">/</span><span class="n">code</span><span class="o">/</span><span class="n">randomforest</span><span class="o">.</span><span class="n">py</span>
+<span class="n">RUN</span> <span class="n">chmod</span> <span class="o">+</span><span class="n">rx</span> <span class="o">/</span><span class="n">code</span><span class="o">/</span><span class="n">randomforest</span><span class="o">.</span><span class="n">py</span>
+<span class="n">ENV</span> <span class="n">PATH</span><span class="o">=</span><span class="s2">&quot;/code:$PATH&quot;</span>
+</pre></div>
+</div>
+<p>A few important notes about the above Dockerfile</p>
+<ol class="arabic simple">
+<li><p>We can create conda environments in various ways, but one convenient way is using a yml file.  We switch to this in the Dockerfile above.</p></li>
+<li><p>To activate the conda environment we create, you can set up a bash configuration file that activates the environment.</p></li>
+</ol>
+<p>To test this container first ensure your dockerfile and script file are in the current working directory, then build the container via the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">build</span> <span class="o">--</span><span class="n">platform</span> <span class="p">[</span><span class="n">architecture</span><span class="p">]</span> <span class="o">-</span><span class="n">t</span> <span class="p">[</span><span class="n">username</span><span class="p">]</span><span class="o">/</span><span class="p">[</span><span class="n">container</span> <span class="n">name</span><span class="p">]:[</span><span class="n">tag</span><span class="p">]</span> <span class="o">.</span>
+</pre></div>
+</div>
+<p>Then run it by having it open shell:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">run</span> <span class="o">--</span><span class="n">rm</span> <span class="o">-</span><span class="n">it</span> <span class="n">condatest</span> <span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">bash</span>
+</pre></div>
+</div>
+<p>When launching the container you should see that myenv is activated. Then, we can run the randoforest.py script:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">myenv</span><span class="p">)</span> <span class="n">root</span><span class="nd">@ca6bcb7e8f60</span><span class="p">:</span><span class="o">/</span><span class="c1"># randomforest.py</span>
+<span class="n">Accuracy</span><span class="p">:</span> <span class="mf">1.0</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -86,6 +206,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="Overview%20of%20conda%20%40%20TACC.html" class="btn btn-neutral float-left" title="Overview of conda @ TACC" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Miniforge%20with%20Cuda.html" class="btn btn-neutral float-right" title="Miniforge with Cuda" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

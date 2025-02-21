@@ -7,4 +7,5 @@ Conda Tips and Tricks
 
    Overview of conda @ TACC
    Miniforge with Sklearn
+   Miniforge with Cuda
 
