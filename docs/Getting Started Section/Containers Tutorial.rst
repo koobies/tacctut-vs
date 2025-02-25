@@ -19,7 +19,7 @@ Before you begin, ensure that you have the following:
     - A working internet connection
 
 Setting GPU enabled PyTorch Container at TACC
---------------------------------------------
+---------------------------------------------
 
 **Step 1: Login to Frontera **  
 
@@ -60,14 +60,14 @@ Apptainer is only available on compute nodes at TACCs system.  To test container
 
     $ idev -p rtx-dev -t 02:00:00
 
-//explain what this means, the Flags
-This might take a while but you will know that you have successfully loaded into a node when your command line shows (base) some numbers and what not
+If prompted to use a reservation, choose yes. Once the command runs successfully, you have a shell on a dedicated compute node. Note, that you may need to wait for the compute to become available in the queue. 
 
-**Step 6:  Load in Apptainer**
+**Step 3:  Load in Apptainer**
 
+Once you have successfully have a shell launched on a compute node, you will need to load apptainer using module.  
 ::
 
-    (base) something$ module list
+    $ module list
 
     Currently Loaded Modules:
     1) intel/19.1.1   4) autotools/1.2   7) hwloc/1.11.12  10) tacc-apptainer/1.3.3
@@ -75,15 +75,17 @@ This might take a while but you will know that you have successfully loaded into
     3) git/2.24.1     6) cmake/3.24.2    9) TACC
 
     
-    (base) something$ module load tacc-apptainer
+    $ module load tacc-apptainer
 
-    verify with:
-    (base) something$ type apptainer
+Now the apptainer command should be be available.  You can check by typing:
+::
+
+    $ type apptainer
 
     apptainer is /opt/apps/tacc-apptainer/1.3.3/bin/apptainer
 
 
-**Step 5. Pull a Prebuilt PyTorch Docker Image**
+**Step 4. Pull a Prebuilt PyTorch Docker Image**
 
 Instead of creating our own Dockerfile, we can use an official PyTorch image from DockerHub
 
@@ -107,28 +109,28 @@ You can replace "output.sif" with whatever you would like to name the file. Othe
 
 
 
-**Step 7. Start an Interactive Apptainer Shell**
+**Step 5. Start an Interactive Apptainer Shell**
 
 Once the image is downloaded, we can enter the Apptainer shell by:
 
 :: 
 
-    (base) something$ apptainer shell output.sif
+    $ apptainer shell output.sif
 
 Now we are in our own isolated environment free to do whatever we would like with it.
 
-**Step 8. Testing it Out**
+**Step 6. Testing it Out**
 
     Once inside the container, switch over to your $SCRATCH directory and install this script. 
 
 ::
 
-    (base) soemthing$ git clone https://github.com/pytorch/examples.git
+    $ git clone https://github.com/pytorch/examples.git
 
-    (base) something$ torchrun --nproc_per_node=4 examples/distributed/ddp-tutorial-series/multigpu_torchrun.py 50 10
+    $ torchrun --nproc_per_node=4 examples/distributed/ddp-tutorial-series/multigpu_torchrun.py 50 10
 
 
-**Step 9: Verifying the Script Execution**
+**Step 7: Verifying the Script Execution**
 Once you've executed the script, you can check the output directly in your terminal. If there are any issues or errors, they will be displayed in the terminal.
 
 Conclusion
