@@ -1,7 +1,7 @@
 Containers Tutorial
 ===================
 
-Docker is a platform for developing, shipping, and running applications inside containers. Containers are lightweight, portable, and ensure that applications run consistently across different environments. However, since we will be working on TACC's HPC systems, this tutorial will be using Apptainer.
+Docker is a platform for developing, shipping, and running applications inside containers. Containers are lightweight, portable, and ensure that applications run consistently across different environments. TACC already has an excellent resources for [building containers at TACC](https://containers-at-tacc.readthedocs.io/en/latest/). Our goal with this introduction is to do a quick review of this tutorial with emphasis on AI/ML applications.  If you are new to containers, we highly suggest you review the containers tutorial first.  In this tutorial, we will review key concepts about containers at TACC as well as review how to utilize based gpu enabled containers at TACC.
 
 What is a Docker Image?
 -----------------------
@@ -9,35 +9,41 @@ A Docker image is a pre-configured package that contains everything needed to ru
 
 Apptainer vs Container
 ----------------------
-Apptainer (formerly Singularity) is a containerization platform designed specifically for high-performance computing (HPC) environments, offering a solution optimized for scientific research and large-scale data processing. Unlike general containers like Docker, which require root privileges and are commonly used for development and cloud-based applications, Apptainer is built to run efficiently on shared systems, such as TACC’s supercomputers and clusters. It provides portability, reproducibility, and seamless integration with HPC job schedulers making it ideal for researchers who need to run complex applications in secure, isolated environments without compromising performance or requiring administrative access.
+Apptainer (formerly Singularity) is a containerization platform designed specifically for high-performance computing (HPC) environments, offering a solution optimized for scientific research and large-scale data processing. Unlike general containers like Docker, which require root privileges and are commonly used for development and cloud-based applications, Apptainer is built to run efficiently on shared systems, such as TACC’s supercomputers and clusters. It provides portability, reproducibility, and seamless integration with HPC job schedulers making it ideal for researchers who need to run complex applications in secure, isolated environments without compromising performance or requiring administrative access.  
+
+In this tutorial, we follow the workflow highlighted in [TACC's container tutorial](https://containers-at-tacc.readthedocs.io/en/latest/singularity/01.singularity_basics.html) where we will a use docker to develop containers locally, push them to docker hub and then use apptainer to run the container on our HPC systems. 
 
 Prerequisites
 -------------
 Before you begin, ensure that you have the following:
-    - A working internet connection to download Docker.
+    - A working internet connection
 
-
-Steps to Install PyTorch with CUDA on Docker
+Setting GPU enabled PyTorch Container at TACC
 --------------------------------------------
 
-we call it this but its not really ON docker or using docker other than docker hub, is this the intended tutorial? im not sure if i have it right
-Apptainer runs Docker containers on HPC systems
+**Step 1: Login to Frontera **  
 
-**Step 1: Install Docker (if not already installed)**
+We will use the Frontera supercomputer in this tutorial.  To login, you need to establish a SSH connection from your laptop to the Frontera system.  Instructions depend on your laptop's operating system.
 
-    - `Mac <https://docs.docker.com/desktop/setup/install/mac-install/>`_
-    - `Windows <https://docs.docker.com/desktop/setup/install/windows-install/>`_
-    - `Linux <https://docs.docker.com/desktop/setup/install/linux/>`_
+Mac / Linux:
+
+|   Open the application 'Terminal'
+|   ssh username@frontera.tacc.utexas.edu
+|   (enter password)
+|   (enter 6-digit token)
 
 
-**Step 2: Run the SSH Command**  
-Use the following command to connect to TACC systems:
+Windows:
 
-:: 
+|   If using Windows Subsystem for Linux, use the Mac / Linux instructions.
+|   If using an application like 'PuTTY'
+|   enter Host Name: frontera.tacc.utexas.edu
+|   (click 'Open')
+|   (enter username)
+|   (enter password)
+|   (enter 6-digit token)
 
-    ssh <username>@<hostname>
-
-(replace `<username>` with your TACC username and `<hostname>` with the system hostname)
+When you have successfully logged in, you should be greeted with some welcome text and a command prompt.
 
 **Example:**
 To connect to the Frontera system:
@@ -46,19 +52,13 @@ To connect to the Frontera system:
 
     ssh username@frontera.tacc.utexas.edu
 
-**Step 3: Enter Your Password**  
-When prompted, type your TACC password. If this is your first time logging in, you may be required to set up or reset your password.
 
-**Step 4: Two-Factor Authentication**  
-TACC systems require two-factor authentication. Follow the on-screen prompts to complete the process.
-
-
-**Step 5: Request a Node**
-If you try to download a Docker image right off the bat, your terminal will warn you!
+**Step 2: Request a Node**
+Apptainer is only available on compute nodes at TACCs system.  To test container on our systems, we suggest launching an interactive session with idev. Below we request an interactive session on an gpu development node (-p rtx-dev) for a total time of 2 hours (-t 02:00:00). 
 
 ::
 
-    (base) something$ idev -N 2 -n 2 -p rtx-dev -t 02:00:00
+    $ idev -p rtx-dev -t 02:00:00
 
 //explain what this means, the Flags
 This might take a while but you will know that you have successfully loaded into a node when your command line shows (base) some numbers and what not
